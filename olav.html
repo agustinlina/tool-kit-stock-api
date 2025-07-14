@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Leer stock.xls y convertir a JSON</title>
+  <!-- Importar SheetJS (XLSX) desde CDN -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.19.0/package/dist/xlsx.full.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #output { white-space: pre-wrap; background: #f4f4f4; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Resultados de stock.xls</h1>
+  <div id="output">Cargando...</div>
+
+  <script>
+    (async function() {
+      try {
+        // Intentar obtener stock.xls desde el mismo origen
+        const response = await fetch('stock_olav.XLS');
+        if (!response.ok) throw new Error('No se pudo descargar stock.xls');
+        const arrayBuffer = await response.arrayBuffer();
+        const data = new Uint8Array(arrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+        const result = [];
+        // Filas desde índice 9 (fila 10 en Excel)
+        for (let i = 9; i < rows.length; i++) {
+          const row = rows[i] || [];
+          const codigo = row[0];  // Columna A
+          const descripcion = row[2]; // Columna C
+          const rubro = row[5];      // Columna F
+          if (codigo) {
+            result.push({
+              codigo: codigo.toString().trim(),
+              descripcion: descripcion ? descripcion.toString().trim() : '',
+              rubro: rubro ? rubro.toString().trim() : ''
+            });
+          }
+        }
+        document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+      } catch (err) {
+        document.getElementById('output').textContent = 'Error: ' + err.message;
+      }
+    })();
+  </script>
+</body>
+</html>
