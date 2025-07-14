@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Leer Excel y convertir a JSON</title>
+    <!-- Importar SheetJS (XLSX) desde CDN -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.0/package/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        input,
+        button {
+            margin: 5px 0;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Convertir Excel a JSON</h1>
+    <input type="file" id="input-file" accept=".xls, .xlsx" />
+    <button id="parse-btn">Procesar</button>
+    <pre id="output"></pre>
+
+    <script>
+        document.getElementById('parse-btn').addEventListener('click', () => {
+            const fileInput = document.getElementById('input-file');
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert('Selecciona primero un archivo Excel.');
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+
+                // Convertir hoja a array de arrays
+                const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
+                const result = [];
+                // Filas a partir de índice 9 (fila 10 en Excel)
+                for (let i = 9; i < rows.length; i++) {
+                    const row = rows[i];
+                    const codigo = row[0];  // Columna A
+                    const descripcion = row[2]; // Columna C
+                    const rubro = row[5];  // Columna F
+                    if (codigo) {
+                        result.push({
+                            codigo: codigo.toString().trim(),
+                            descripcion: descripcion ? descripcion.toString().trim() : '',
+                            rubro: rubro ? rubro.toString().trim() : ''
+                        });
+                    }
+                }
+                document.getElementById('output').textContent = JSON.stringify(result, null, 2);
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
+</body>
+
+</html>
