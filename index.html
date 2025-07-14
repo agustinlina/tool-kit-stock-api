@@ -18,7 +18,7 @@
     (async function() {
       try {
         // Intentar obtener stock.xls desde el mismo origen
-        const response = await fetch('stock.xls');
+        const response = await fetch('stock.XLS');
         if (!response.ok) throw new Error('No se pudo descargar stock.xls');
         const arrayBuffer = await response.arrayBuffer();
         const data = new Uint8Array(arrayBuffer);
