@@ -1,0 +1,17 @@
+{
+  "name": "leer-stock",
+  "version": "1.0.0",
+  "description": "Leer archivo Excel de stock y convertir a JSON",
+  "main": "leer_stock.js",
+  "scripts": {
+    "start": "node leer_stock.js"
+  },
+  "dependencies": {
+    "nodemon": "^3.1.10",
+    "xlsx": "^0.18.5",
+    "xslx": "^1.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
